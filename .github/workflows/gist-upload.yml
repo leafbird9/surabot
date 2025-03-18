@@ -15,7 +15,7 @@ jobs:
 
       - name: Upload file to Gist
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIST_TOKEN: ${{ secrets.PERSONAL_GIST_TOKEN }}  # ✅ 변경된 Secret 변수 사용
         run: |
-          gh auth login --with-token <<< "$GITHUB_TOKEN"
+          gh auth login --with-token <<< "$GIST_TOKEN"
           gh gist create path/to/file.cs --public=false --desc "Surabot Gist 공유"
