@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "surabot": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
