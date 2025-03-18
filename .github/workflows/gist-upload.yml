@@ -1,0 +1,25 @@
+name: Upload to Gist
+
+on:
+  push:
+    branches:
+      - main  # 🚀 main 브랜치에 Push될 때 실행
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate with GitHub CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIST_PAT }}  # ✅ 변경된 Secret 사용
+        run: |
+          echo "$GITHUB_TOKEN" | gh auth login --with-token
+          gh auth setup-gist  # ✅ Gist 인증 설정 추가
+
+      - name: Upload file to Gist
+        run: |
+          gh gist create path/to/file.cs --public=false --desc "Surabot Gist 공유"
