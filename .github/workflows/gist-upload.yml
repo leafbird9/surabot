@@ -1,9 +1,9 @@
-name: Upload to Gist
+name: Upload to Repository
 
 on:
   push:
     branches:
-      - main  # 🚀 main 브랜치에 Push될 때 실행
+      - main  # ✅ main 브랜치에 Push될 때 실행
 
 jobs:
   upload:
@@ -13,12 +13,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Authenticate with GitHub CLI
-        env:
-          GIST_PAT: ${{ secrets.GIST_PAT }}  # ✅ 변경된 Secret 사용
+      - name: Set up Git
         run: |
-          echo "$GIST_PAT" | gh auth login --with-token
+          git config --global user.email "leafbird90@gmail.com"
+          git config --global user.name "leafbird9"
 
-      - name: Upload file to Gist
+      - name: Commit and push changes
         run: |
-          gh gist create my_code.cs --desc "Surabot Gist 공유"
+          git add .
+          git commit -m "자동 업데이트"
+          git push
