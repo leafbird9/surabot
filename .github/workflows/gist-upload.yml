@@ -1,0 +1,21 @@
+name: Sync File to Gist
+
+on:
+  push:
+    branches:
+      - main  # 🚀 메인 브랜치에 Push될 때 실행
+
+jobs:
+  update_gist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Upload file to Gist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth login --with-token <<< "$GITHUB_TOKEN"
+          gh gist create path/to/file.cs --public=false --desc "Surabot Gist 공유"
