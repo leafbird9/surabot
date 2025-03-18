@@ -1,0 +1,44 @@
+name: Upload to Repository
+
+on:
+  push:
+    branches:
+      - main  # ✅ main 브랜치에 Push될 때 실행
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "your-email@example.com"
+          git config --global user.name "YourGitHubUsername"
+
+      - name: Authenticate with PAT
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}  # ✅ 추가된 Personal Access Token 사용
+        run: |
+          git remote set-url origin https://x-access-token:$PAT_TOKEN@github.com/leafbird9/surabot.git
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git status --porcelain > changes.txt
+          if [ -s changes.txt ]; then
+            echo "Changes detected"
+            echo "HAS_CHANGES=true" >> $GITHUB_ENV
+          else
+            echo "No changes detected"
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+          fi
+
+      - name: Commit and push changes
+        if: env.HAS_CHANGES == 'true'
+        run: |
+          git add .
+          git commit -m "자동 업데이트"
+          git push origin main
