@@ -18,6 +18,12 @@ jobs:
           git config --global user.email "your-email@example.com"
           git config --global user.name "YourGitHubUsername"
 
+      - name: Authenticate with PAT
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}  # ✅ 추가된 Personal Access Token 사용
+        run: |
+          git remote set-url origin https://x-access-token:$PAT_TOKEN@github.com/leafbird9/surabot.git
+
       - name: Check for changes
         id: check_changes
         run: |
@@ -35,4 +41,4 @@ jobs:
         run: |
           git add .
           git commit -m "자동 업데이트"
-          git push
+          git push origin main
