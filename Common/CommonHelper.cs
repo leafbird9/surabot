@@ -13,7 +13,7 @@ namespace surabot.Common
         public static void InitializeEnvironment()
         {
 #if DEBUG
-            DiscordToken = "MTM0ODc1MjE4NDI3OTU2NDMwOA.GQsJj7.s9fNlMt-sza3Uh8renicLZ-zaAfozzZp2Q80RY";
+            DiscordToken = "MTM0ODc1MjE4NDI3OTU2NDMwOA.GGRgdH.9aiB6xzCq5c5JbDtIczey6zMjQm7POmOilbzG4";
             DiscordGuildId = "1153967439772659712";
             DbConnectionString = "Server=58.229.105.96;Database=sql_chzbot;User=sql_chzbot;Password=cb3df373bfba7";
             LogHelper.WriteLog(LogCategory.System, "🛠️ DEBUG 모드 활성화됨");

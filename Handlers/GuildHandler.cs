@@ -60,11 +60,13 @@ namespace surabot.Handlers
                 LogHelper.WriteLog(LogCategory.Database, $"📡 봇 입장 로그 기록 완료: {guild.Name} (ID: {guild.Id})");
 
                 // ✅ `bot_features`에서 기능 확인
-                bool isChzzkEnabled = await _botSettingsService.IsFeatureEnabledAsync(guild.Id, "Chzzk"); // ✅ featureName 추가
+                bool isChzzkEnabled = _botSettingsService.IsFeatureEnabled(guild.Id, "Chzzk"); // ✅ featureName 추가
                 if (isChzzkEnabled)
                 {
                     LogHelper.WriteLog(LogCategory.Chzzk, "🎥 Chzzk 기능 활성화됨");
                 }
+
+                await EnsureAdminCategoryAndChannelsAsync(guild);
             }
             catch (Exception ex)
             {
@@ -93,6 +95,68 @@ namespace surabot.Handlers
             catch (Exception ex)
             {
                 LogHelper.WriteLog(LogCategory.Error, $"❌ 환영 메시지 전송 중 오류 발생: {ex.Message}");
+            }
+        }
+
+        private async Task EnsureAdminCategoryAndChannelsAsync(SocketGuild guild)
+        {
+            const string categoryName = "🔒 수라봇 - 관리자 전용";
+
+            var channelsToCreate = new[]
+            {
+            "📢 수라봇-공지",
+            };
+
+            var adminRole = guild.Roles.FirstOrDefault(r => r.Permissions.Administrator);
+            if (adminRole == null)
+            {
+                Console.WriteLine($"⚠ {guild.Name} 서버에서 관리자 역할을 찾을 수 없음.");
+                return;
+            }
+
+            // ✅ 기존 카테고리 확인
+            var existingCategory = guild.CategoryChannels.FirstOrDefault(c => c.Name == categoryName);
+            ICategoryChannel category;
+
+            if (existingCategory != null)
+            {
+                Console.WriteLine($"✅ {guild.Name} 서버에서 기존 '{categoryName}' 카테고리를 발견!");
+                category = existingCategory;
+            }
+            else
+            {
+                category = await guild.CreateCategoryChannelAsync(categoryName, props =>
+                {
+                    props.PermissionOverwrites = new[]
+                    {
+                    new Overwrite(adminRole.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Allow)),
+                    new Overwrite(guild.EveryoneRole.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Deny))
+                };
+                });
+                Console.WriteLine($"✅ {guild.Name} 서버에 '{categoryName}' 카테고리 생성 완료!");
+            }
+
+            // ✅ 카테고리 내 필요한 채널 확인 및 생성
+            foreach (var channelName in channelsToCreate)
+            {
+                var existingChannel = guild.TextChannels.FirstOrDefault(c => c.Name == channelName);
+                if (existingChannel != null)
+                {
+                    Console.WriteLine($"✅ {guild.Name} 서버에서 기존 '{channelName}' 채널 발견, 새로 생성하지 않음.");
+                    continue;
+                }
+
+                await guild.CreateTextChannelAsync(channelName, props =>
+                {
+                    props.CategoryId = category.Id;
+                    props.PermissionOverwrites = new[]
+                    {
+                    new Overwrite(adminRole.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Allow, sendMessages: PermValue.Allow)),
+                    new Overwrite(guild.EveryoneRole.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Deny, sendMessages: PermValue.Deny))
+                };
+                });
+
+                Console.WriteLine($"✅ {guild.Name} 서버에 '{channelName}' 채널 생성 완료!");
             }
         }
     }
